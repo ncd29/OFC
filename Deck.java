@@ -14,9 +14,9 @@ public class Deck {
 	// creates a new deck with all 52 cards
 	public Deck() {
 		ArrayList<Card> cards = new ArrayList<Card>();
-		for (int i=0; i<4; i++) {
+		for (int i=0; i<13; i++) {
 			Value v = Value.values()[i];
-			for (int j=0; j<13; j++) {
+			for (int j=0; j<4; j++) {
 				Card c = new Card(Suit.values()[j],v);
 				cards.add(c);
 			}
@@ -27,20 +27,34 @@ public class Deck {
 	public ArrayList<Card> getDeck(){
 		return deck;
 	}
+	
 	/**
-	 * shuffles the deck randomly 
+	 * shuffles the deck randomly
+	 * Knuth shuffling algorithm from :
+	 * http://algs4.cs.princeton.edu/11model/Knuth.java.html 
 	 */
-	public void shuffle(Deck d) {
-		//TODO
+	public void shuffle() {
+	    int n = this.deck.size();
+        for (int i = 0; i < n; i++) {
+            // choose index uniformly in [i, N-1]
+            int r = i + (int) (Math.random() * (n - i));
+            Card temp = this.deck.get(r);
+            this.deck.add(r,this.deck.get(i));
+            this.deck.add(i,temp);
+        }
 	}
 	
 	/**
-	 * returns the top n cards from the deck d
-	 * removes the cards from the deck d
-	 * n >= 1 and if n > the total number of cards in d, throws exception
+	 * returns the top n cards from the deck
+	 * removes the cards from the deck
+	 * n >= 1 and if n > the total number of cards in the deck, throws exception
+	 * has to interact with the GUI somehow
 	 */
-	public ArrayList<Card> removeTopCards(Deck d, int n) {
-		//TODO
-		return new ArrayList<Card>();
+	public ArrayList<Card> removeTopCards(int n) {
+		ArrayList<Card> cards = new ArrayList<Card>();
+		for (int i=0; i<n; i++) {
+			cards.add(this.deck.get(i));
+		}
+		return cards;
 	}
 }

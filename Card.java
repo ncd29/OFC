@@ -33,20 +33,20 @@ public class Card {
 	
 	/**
 	 * returns true if the card is exactly one rank greater than card C.
+	 * Aces are always considered high
 	 * Ex: Jack is one above Ten.
 	 */
 	public boolean oneAbove(Card c) {
-		//TODO
-		return false;
+		return this.value.getValue() - 1 == c.getValue().getValue();
 	}
 	
 	/**
 	 * returns true if the card is exactly one rank less than card C.
+	 * Aces are always considered high
 	 * Ex: Ten is one below Jack.
 	 */
 	public boolean oneBelow(Card c) {
-		//TODO
-		return false;
+		return this.value.getValue() == c.getValue().getValue() - 1;
 	}
 	
 	/**
@@ -54,9 +54,21 @@ public class Card {
 	 * Ex: "Ace of Spades"
 	 */
 	public String toString() {
-		//TODO
-		return "";
+		if (this.value.getValue() > 10) {
+			return this.value + "_of_" + this.suit;
+		}
+		else {
+			return this.value.getValue() + "_of_" + this.suit;
+		}
 	}
 	
+	//above is tested
+	
+	/**
+	 * check if two cards are the same
+	 */
+	public boolean equals(Card c) {
+		return this.suit == c.getSuit() && this.value == c.getValue();
+	}
 	
 }
