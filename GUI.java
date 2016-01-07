@@ -15,8 +15,10 @@ import java.awt.image.BufferedImage;
  * @author nathanieldavenport
  *
  * Card images from:
- * http://opengameart.org/content/playing-cards-vector-png
+ * http://opengameart.org/content/playing-cards-vector-png - may have to check if these are ok to use 
+ * if I end up doing more with this
  * Based off of a GUI (has been modified a lot) from CS2110 at Cornell
+ * 
  * 
  */
 

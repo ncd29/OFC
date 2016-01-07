@@ -1,4 +1,5 @@
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 
 /**
@@ -13,16 +14,23 @@ import java.util.HashMap;
 public class Hand {
 	
 	private ArrayList<Card> cards;
-	private int points;
+	private int expectedPoints;
 	private Row row;
 	
 	public Hand(ArrayList<Card> c,Row r) {
 		cards = c;
-		points = 0; // may need to change this
+		expectedPoints = 0; // may need to change this
 		row = r;
 	}
 	
-	public ArrayList<Card> getHand() {
+	// hand with just the cards
+	public Hand(ArrayList<Card> c) {
+		cards = c;
+		expectedPoints = 0;
+		row = null;
+	}
+	
+	public ArrayList<Card> getCards() {
 		return cards;
 	}
 	
@@ -30,8 +38,18 @@ public class Hand {
 	 * sort the cards in order of their rank
 	 */
 	public ArrayList<Card> sortByRank() {
-		//TODO
-		return new ArrayList<Card>();
+		ArrayList<Card> cards = this.cards;
+		for (int j = 1; j < cards.size(); j++) {
+			int key = cards.get(j).getValue().getValue();
+			int i = j-1;
+			while (i>=0 && cards.get(i).getValue().getValue() > key) {
+				cards.get(i+1).setValue(cards.get(i).getValue());
+				cards.get(i+1).setSuit(cards.get(i).getSuit());
+				i = i - 1;
+			cards.get(i+1).setValue(Value.setValue(key));			
+			}
+		}
+		return cards;
 	}
 	
 	/**
@@ -48,8 +66,88 @@ public class Hand {
 	 * multiple suits are returned if there is a tie
 	 */
 	public HashMap<Suit,Integer> mostCommonSuit() {
-		//TODO
-		return new HashMap<Suit,Integer>();
+		HashMap<Suit,Integer> mostCommon = new HashMap<Suit,Integer>();
+		int hearts = 0; int spades = 0; int clubs = 0; int diamonds = 0;
+		for (int i=0; i<this.cards.size(); i++) {
+			if (this.cards.get(i).getSuit() == Suit.clubs) {
+				clubs += 1;
+				if (clubs == 2) {
+					mostCommon.put(Suit.clubs, 2);
+				}
+				if (clubs >= 3) {
+					mostCommon.clear();
+					mostCommon.put(Suit.clubs,clubs);
+				}
+			}
+			else if (this.cards.get(i).getSuit() == Suit.spades) {
+				spades += 1;
+				if (spades == 2) {
+					mostCommon.put(Suit.spades, 2);
+				}
+				if (spades >= 3) {
+					mostCommon.clear();
+					mostCommon.put(Suit.spades,spades);
+				}
+			}
+			else if (this.cards.get(i).getSuit() == Suit.hearts) {
+				hearts += 1;
+				if (hearts == 2) {
+					mostCommon.put(Suit.hearts, 2);
+				}
+				if (hearts >= 3) {
+					mostCommon.clear();
+					mostCommon.put(Suit.hearts,hearts);
+				}
+			}
+			else {
+				diamonds += 1;
+				if (diamonds == 2) {
+					mostCommon.put(Suit.diamonds, 2);
+				}
+				if (clubs >= 3) {
+					mostCommon.clear();
+					mostCommon.put(Suit.diamonds,diamonds);
+				}
+			}
+		}
+		return mostCommon;
+	}
+	
+	/**
+	 * returns the largest suit with at least two of that suit in the hand
+	 * so a hand of QsJsTh4h8d will return Suit.spades because Qs > Th
+	 * currently assumes input contains 5 cards?
+	 */
+	public HashMap<Suit,Integer> largestSuit() {
+		HashMap<Suit,Integer> mostFrequentSuits = this.mostCommonSuit();
+		HashMap<Suit,Integer> biggestSuit = new HashMap<Suit,Integer>();
+		if (mostFrequentSuits.size() == 1) {
+			biggestSuit = mostFrequentSuits;
+		}
+		else {
+			this.sortByRank();
+			Value v = this.cards.get(0).getValue();
+			Value v2 = this.cards.get(1).getValue();
+			Suit s = this.cards.get(0).getSuit();
+			Suit s2 = this.cards.get(1).getSuit();
+			Suit s3 = this.cards.get(2).getSuit();
+			Value v3 = this.cards.get(2).getValue();
+			Value v4 = this.cards.get(3).getValue();
+			Value v5 = this.cards.get(4).getValue();
+			if (mostFrequentSuits.containsKey(s)) {
+				biggestSuit.put(s, 2);
+				if (v == v2 && v3 == v4) {
+					biggestSuit.put(s2, 2);
+				}
+			}
+			else {
+				biggestSuit.put(s2,2);
+				if (v2 == v3 && v4 == v5) {
+					biggestSuit.put(s3,2);
+				}
+			}
+		}
+		return biggestSuit;
 	}
 	
 	/**
@@ -102,7 +200,7 @@ public class Hand {
 	
 	/**
 	 * check if a card list contains an A-5 straight
-	 * helper for low Straight
+	 * helper for low Straight and straightCheck?
 	 */
 	private boolean lowStraightCheck() {
 		//TODO
@@ -112,7 +210,7 @@ public class Hand {
 	/**
 	 * check if a card list contains a straight
 	 */
-	private boolean straightCheck() {
+	public boolean straightCheck() {
 		//TODO
 		return false;
 	}

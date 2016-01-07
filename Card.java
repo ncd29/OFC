@@ -23,6 +23,14 @@ public class Card {
 		return value;
 	}
 	
+	public void setValue(Value v) {
+		this.value = v;
+	}
+	
+	public void setSuit(Suit s) {
+		this.suit = s;
+	}
+	
 	public boolean sameSuit(Card c) {
 		return this.suit == c.getSuit();
 	}

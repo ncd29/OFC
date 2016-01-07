@@ -48,12 +48,11 @@ public class Deck {
 	 * returns the top n cards from the deck
 	 * removes the cards from the deck
 	 * n >= 1 and if n > the total number of cards in the deck, throws exception
-	 * has to interact with the GUI somehow
 	 */
 	public ArrayList<Card> removeTopCards(int n) {
 		ArrayList<Card> cards = new ArrayList<Card>();
 		for (int i=0; i<n; i++) {
-			cards.add(this.deck.get(i));
+			cards.add(this.deck.remove(i));
 		}
 		return cards;
 	}
