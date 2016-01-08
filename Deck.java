@@ -24,6 +24,12 @@ public class Deck {
 		deck = cards;
 	}
 	
+	// creates an incomplete "deck" of cards
+	// this is probably really bad design, but I need to shuffle
+	public Deck(ArrayList<Card> cards) {
+		deck = cards;
+	}
+	
 	public ArrayList<Card> getDeck(){
 		return deck;
 	}
@@ -34,14 +40,20 @@ public class Deck {
 	 * http://algs4.cs.princeton.edu/11model/Knuth.java.html 
 	 */
 	public void shuffle() {
-	    int n = this.deck.size();
-        for (int i = 0; i < n; i++) {
-            // choose index uniformly in [i, N-1]
-            int r = i + (int) (Math.random() * (n - i));
-            Card temp = this.deck.get(r);
-            this.deck.add(r,this.deck.get(i));
-            this.deck.add(i,temp);
-        }
+		Collections.shuffle(this.deck);
+	    // not working right now
+		//int n = this.deck.size();
+	    //System.out.println("shuffled size = " + n);
+        //for (int i = 0; i < n; i++) {
+            // choose index uniformly in [i, n-1]
+          //  int r = i + (int) (Math.random() * (n - i));
+            //Card temp = this.deck.get(r);
+            //this.deck.add(r,this.deck.get(i));
+            //this.deck.remove(i);
+            //this.deck.add(i,temp);
+            //this.deck.remove(r);
+		//}
+        //System.out.println("new shuffled size = " + this.deck.size());
 	}
 	
 	/**
@@ -55,5 +67,15 @@ public class Deck {
 			cards.add(this.deck.remove(i));
 		}
 		return cards;
+	}
+	
+	/**
+	 * print the deck as a string
+	 */
+	public void printString() {
+		ArrayList<Card> cards = this.deck;
+		for (int i=0; i<cards.size(); i++) {
+			System.out.println(cards.get(i).toString());
+		}
 	}
 }

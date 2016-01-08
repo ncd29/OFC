@@ -109,33 +109,78 @@ public class Probability {
 	 * calculates the odds of completing a straight in the back given the arrangement
 	 * of cards put in the back and the opponent's board
 	 * cards is the test of cards that was put in the back 
-	 */
-	public static double straightInBack(ArrayList<Card> cards,Board oppBoard) {
+	 * remaining is the player's cards not put in back
+	 * doesn't consider low straights
+	 *
+	public static double straightInBack(ArrayList<Card> cards, ArrayList<Card> remaining, 
+		Board oppBoard) {
 		//TODO
 		int length = cards.size();
+		int t;
+		ArrayList<Card> oppCards = oppBoard.getCardsOfBoard();
+		t = (oppCards.isEmpty() ? 47 : 42);
+		int outs;
+		// check this
+		Hand hand1 = new Hand(cards);
+		cards = hand1.sortByRank();
 		Hand hand = new Hand(cards);
+		remaining.addAll(oppCards);
 		if (length == 5) {
 			return (hand.straightCheck() ? 1 : 0);
 		}
 		else if (length == 4) {
 			if (hand.isGutshot(length)) {
-				
+				outs = 4;
+				// find the value of the Card needed for the straight
+				Value v;
+				if (cards.get(3).twoAbove(cards.get(2))) {
+					v = Value.setValue(cards.get(3).getValue().getValue() - 1);
+				}
+				else if (cards.get(2).twoAbove(cards.get(1))) {
+					v = Value.setValue(cards.get(2).getValue().getValue() - 1);
+				}
+				else {
+					v = Value.setValue(cards.get(1).getValue().getValue() - 1);
+				}
+				// if an out is contained in the other visible cards, remove it
+				for (int i=0; i<remaining.size(); i++) {
+					if (remaining.get(i).getValue() == v) {
+						outs --;
+					}
+				}
+				return 1 - ((combinations(t-outs,12))/(combinations(t,12)));
 			}
-			if (hand.isOpenEnded(length)) {
-				
+			else if (hand.isOpenEnded(length)) {
+				outs = 8;
+				Value v1 = Value.setValue(cards.get(3).getValue().getValue() + 1);
+				Value v2 = Value.setValue(cards.get(0).getValue().getValue() - 1);
+				for (int i=0; i<remaining.size(); i++) {
+					if (remaining.get(i).getValue() == v1 || remaining.get(i).getValue() == v2) {
+						outs --;
+					}
+				}
+				return 1 - ((combinations(t-outs,12))/(combinations(t,12)));
 			}
 			else {
-				
+				return 0;
 			}
 		}
 		else if (length == 3) {
-			if (hand.isOpenEnded()) {
+			if (hand.isOpenEnded(length)) {
+				outs = 8;
+				Value v1 = Value.setValue(cards.get(3).getValue().getValue() + 1);
+				Value v2 = Value.setValue(cards.get(0).getValue().getValue() - 1);
+				for (int i=0; i<remaining.size(); i++) {
+					if (remaining.get(i).getValue() == v1 || remaining.get(i).getValue() == v2) {
+						outs --;
+					}
+				}
+				return 1 - ((combinations(t-outs,12))/(combinations(t,12)));
+			}
+			else if (hand.isGutshot(length)) {
 				
 			}
-			if (hand.isGutshot(length)) {
-				
-			}
-			if (hand.isDoubleGutshot(length)) {
+			else if (hand.isDoubleGutshot(length)) {
 				
 			}
 			else {
@@ -143,12 +188,27 @@ public class Probability {
 			}
 		}
 		else if (length == 2) {
-			
+			if (hand.isOpenEnded(length)) {
+				
+			}
+			else if (hand.isGutshot(length)) {
+				
+			}
+			else if (hand.isDoubleGutshot(length)) {
+				
+			}
+			else if (hand.isTripleGutshot()) {
+				
+			}
+			else {
+				
+			}
 		}
 		else { // length == 1
 			
 		}
 	}
+	*/
 	
 	/**
 	 * calculates the odds of completing a three of a kind in the back given the arrangement
@@ -203,8 +263,11 @@ public class Probability {
 	 * - pair + 1 vs just pair, stuff like that
 	 * - straight draws vs. flush draws
 	 * - etc.
-	 */
-	public static double expectedPointsInBack(ArrayList<Card> cards, Board oppBoard) {
+	 * cards is the cards specific to the back, 
+	 * other cards is the cards put elsewhere on the person's board
+	 *
+	public static double expectedPointsInBack(ArrayList<Card> cards, ArrayList<Card> otherCards,
+		Board oppBoard) {
 		//TODO
 		// this should go elsewhere, perhaps
 		Hand hand = new Hand(cards);
@@ -212,10 +275,12 @@ public class Probability {
 		// this is expectedPoints if hit,
 		double twoPairOdds = twoPairInBack(oppBoard);
 		double tripsOdds = tripleInBack(oppBoard);
-		double straightOdds = straightInBack(cards,oppBoard);
+		//double straightOdds = straightInBack(cards, otherCards, oppBoard);
 		double flushOdds = flushInBack(largestSuits,oppBoard);
 		double fullHouseOdds = fullHouseInBack(oppBoard);
 		double quadsOdds = quadsInBack(oppBoard);
+		// this is going to be way too high, need the odds of a two pair, and not a flush, and
+		// flush, but not anything else, etc.
 		return straightOdds * STRAIGHT_IN_BACK + flushOdds * FLUSH_IN_BACK + 
 		fullHouseOdds * FULL_HOUSE_IN_BACK + quadsOdds * QUADS_IN_BACK + 
 		// assume if one of the above hands is not hit, a foul occurred, 
@@ -223,4 +288,5 @@ public class Probability {
 		(1 - (twoPairOdds + tripsOdds + straightOdds + flushOdds + fullHouseOdds
 		+ quadsOdds)) * FOUL;
 	}
+	*/
 }

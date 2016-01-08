@@ -57,6 +57,53 @@ public class Card {
 		return this.value.getValue() == c.getValue().getValue() - 1;
 	}
 	
+	//above is tested
+	
+	/**
+	 * returns true if the card is exactly two ranks greater than card C.
+	 * Aces are always considered high
+	 * Ex: King is two above Jack.
+	 */
+	public boolean twoAbove(Card c) {
+		return this.value.getValue() - 2 == c.getValue().getValue();
+	}
+	
+	/**
+	 * returns true if the card is exactly two ranks less than card C.
+	 * Aces are always considered high
+	 * Ex: Ten is two below Queen.
+	 */
+	public boolean twoBelow(Card c) {
+		return this.value.getValue() == c.getValue().getValue() - 2;
+	}
+	
+	/**
+	 * returns true if the card is exactly three ranks greater than card C.
+	 * Aces are always considered high
+	 * Ex: Ten is three above 7.
+	 */
+	public boolean threeAbove(Card c) {
+		return this.value.getValue() - 3 == c.getValue().getValue();
+	}
+	
+	/**
+	 * returns true if the card is exactly three ranks less than card C.
+	 * Aces are always considered high
+	 * Ex: Ten is three below King.
+	 */
+	public boolean threeBelow(Card c) {
+		return this.value.getValue() == c.getValue().getValue() - 3;
+	}
+	
+	/**
+	 * returns true if the card is exactly four ranks greater than card C.
+	 * Aces are always considered high
+	 * Ex: Ten is three above 6.
+	 */
+	public boolean fourAbove(Card c) {
+		return this.value.getValue() - 4 == c.getValue().getValue();
+	}
+	
 	/**
 	 * returns the string representation of card
 	 * Ex: "Ace of Spades"
@@ -69,8 +116,6 @@ public class Card {
 			return this.value.getValue() + "_of_" + this.suit;
 		}
 	}
-	
-	//above is tested
 	
 	/**
 	 * check if two cards are the same
