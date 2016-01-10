@@ -1,6 +1,7 @@
 import java.util.ArrayList;
 import java.util.Stack;
 import java.util.HashMap;
+import java.util.Random;
 
 /**
  * Represents a current player's board
@@ -19,7 +20,7 @@ public class Board {
 	private int points;
 	private double expectedPoints;
 	
-	//empty constructor
+	//empty constructor creates an empty board
 	public Board() {
 		board = new HashMap<Row,Hand>();
 		board.put(Row.BOTTOM, new Hand(new ArrayList<Card>(),Row.BOTTOM));
@@ -32,6 +33,7 @@ public class Board {
 	public Board(HashMap<Row,Hand> rows, int expectedPoints) {
 		board = rows;
 		this.expectedPoints = expectedPoints;
+		points = 0;
 	}
 	
 	public HashMap<Row,Hand> getBoard() {
@@ -51,6 +53,30 @@ public class Board {
 	}
 	
 	/**
+	 * returns the number of cards in the top row
+	 */
+	private int getTopSize() {
+		HashMap<Row,Hand> rows = this.board;
+		return rows.get(Row.TOP).getCards().size();
+	}
+	
+	/**
+	 * returns the number of cards in the middle row
+	 */
+	private int getMiddleSize() {
+		HashMap<Row,Hand> rows = this.board;
+		return rows.get(Row.MIDDLE).getCards().size();
+	}
+	
+	/**
+	 * returns the number of cards in the top row
+	 */
+	private int getBottomSize() {
+		HashMap<Row,Hand> rows = this.board;
+		return rows.get(Row.BOTTOM).getCards().size();
+	}
+	
+	/**
 	 * returns as a list all of the cards currently on the board
 	 */
 	public ArrayList<Card> getCardsOfBoard() {
@@ -67,22 +93,23 @@ public class Board {
 	 * opp is the opponents board
 	 */
 	public Board calculateBestAction(ArrayList<Card> dealt, Board opp) {
-		//TODO
+		//TODO - I think this is done
 		double expectedPoints = 0.0;
 		Stack<Board> boards = allArrangements(dealt,this);
 		Board best = boards.pop();
-		expectedPoints = simulate(best,opp,new Deck(),100,100); // try with 100 runs first
+		expectedPoints = simulate(best,opp,new Deck(),100,100); // try with 100 runs first, but need more
 		best.setExpectedPoints(expectedPoints);
-		//while (!boards.isEmpty()) {
-		//	points = Probability.someHelper(Stack.peek());
-		//  if (points > expectedPoints) best = boards.pop(); expectedPoints = points
-		//  else boards.pop();
-		//}
-		// calculate the expectedPoints in the back, middle, and front from each move
-		// to find the total expectedPoints from each move, will check all moves
-		// will call a helper function to check each arrangement, whcih will in turn call helpers
-		// for back, middle, and front, and sum the totals
-		return null;
+		while (!boards.isEmpty()) {
+			double points = simulate(boards.peek(),opp,new Deck(),100,100);
+			if (points > expectedPoints) {
+				best = boards.pop(); 
+				expectedPoints = points;
+			}
+			else {
+				boards.pop();
+			}
+		}
+		return best;
 	}
 	
 	/**
@@ -215,6 +242,241 @@ public class Board {
 	}
 	
 	/**
+	 * cards to place will be two of three, n is a random number between 0 and
+	 */
+	private void placeCardsOnBoard(ArrayList<Card> cards, int n) {
+		// n = 0 : 1,2 top
+		if (this.getTopSize() < 2 && n == 0) {
+			ArrayList<Card> cardsOnBoard = this.board.get(Row.TOP).getCards();
+			cardsOnBoard.add(cards.get(0));
+			cardsOnBoard.add(cards.get(1));
+			this.board.put(Row.TOP, new Hand(cardsOnBoard,Row.TOP));
+		}
+		// n = 1 : 1,3 top
+		else if (this.getTopSize() < 2 && n == 1) {
+			ArrayList<Card> cardsOnBoard = this.board.get(Row.TOP).getCards();
+			cardsOnBoard.add(cards.get(0));
+			cardsOnBoard.add(cards.get(2));
+			this.board.put(Row.TOP, new Hand(cardsOnBoard,Row.TOP));
+		}
+		// n = 2 : 2,3 top
+		else if (this.getTopSize() < 2 && n == 2) {
+			ArrayList<Card> cardsOnBoard = this.board.get(Row.TOP).getCards();
+			cardsOnBoard.add(cards.get(1));
+			cardsOnBoard.add(cards.get(2));
+			this.board.put(Row.TOP, new Hand(cardsOnBoard,Row.TOP));
+		}
+		// n = 3 : 1 top, 2 middle
+		else if (this.getTopSize() < 3 && this.getMiddleSize() < 5 && n == 3) {
+			ArrayList<Card> cardsOnTop = this.board.get(Row.TOP).getCards();
+			cardsOnTop.add(cards.get(0));
+			ArrayList<Card> cardsInMiddle = this.board.get(Row.MIDDLE).getCards();
+			cardsInMiddle.add(cards.get(1));
+			this.board.put(Row.TOP, new Hand(cardsOnTop,Row.TOP));
+			this.board.put(Row.MIDDLE, new Hand(cardsInMiddle,Row.MIDDLE));
+		}
+		// n = 4 : 2 top, 1 middle
+		else if (this.getTopSize() < 3 && this.getMiddleSize() < 5 && n == 4) {
+			ArrayList<Card> cardsOnTop = this.board.get(Row.TOP).getCards();
+			cardsOnTop.add(cards.get(1));
+			ArrayList<Card> cardsInMiddle = this.board.get(Row.MIDDLE).getCards();
+			cardsInMiddle.add(cards.get(0));
+			this.board.put(Row.TOP, new Hand(cardsOnTop,Row.TOP));
+			this.board.put(Row.MIDDLE, new Hand(cardsInMiddle,Row.MIDDLE));
+		}
+		// n = 5 : 1 top, 3 middle
+		else if (this.getTopSize() < 3 && this.getMiddleSize() < 5 && n == 5) {
+			ArrayList<Card> cardsOnTop = this.board.get(Row.TOP).getCards();
+			cardsOnTop.add(cards.get(0));
+			ArrayList<Card> cardsInMiddle = this.board.get(Row.MIDDLE).getCards();
+			cardsInMiddle.add(cards.get(2));
+			this.board.put(Row.TOP, new Hand(cardsOnTop,Row.TOP));
+			this.board.put(Row.MIDDLE, new Hand(cardsInMiddle,Row.MIDDLE));
+		}
+		// n = 6 : 3 top, 1 middle
+		else if (this.getTopSize() < 3 && this.getMiddleSize() < 5 && n == 6) {
+			ArrayList<Card> cardsOnTop = this.board.get(Row.TOP).getCards();
+			cardsOnTop.add(cards.get(2));
+			ArrayList<Card> cardsInMiddle = this.board.get(Row.MIDDLE).getCards();
+			cardsInMiddle.add(cards.get(0));
+			this.board.put(Row.TOP, new Hand(cardsOnTop,Row.TOP));
+			this.board.put(Row.MIDDLE, new Hand(cardsInMiddle,Row.MIDDLE));
+		}
+		// n = 7 : 2 top, 3 middle
+		else if (this.getTopSize() < 3 && this.getMiddleSize() < 5 && n == 7) {
+			ArrayList<Card> cardsOnTop = this.board.get(Row.TOP).getCards();
+			cardsOnTop.add(cards.get(1));
+			ArrayList<Card> cardsInMiddle = this.board.get(Row.MIDDLE).getCards();
+			cardsInMiddle.add(cards.get(2));
+			this.board.put(Row.TOP, new Hand(cardsOnTop,Row.TOP));
+			this.board.put(Row.MIDDLE, new Hand(cardsInMiddle,Row.MIDDLE));
+		}
+		// n = 8 : 3 top, 2 middle
+		else if (this.getTopSize() < 3 && this.getMiddleSize() < 5 && n == 8) {
+			ArrayList<Card> cardsOnTop = this.board.get(Row.TOP).getCards();
+			cardsOnTop.add(cards.get(2));
+			ArrayList<Card> cardsInMiddle = this.board.get(Row.MIDDLE).getCards();
+			cardsInMiddle.add(cards.get(1));
+			this.board.put(Row.TOP, new Hand(cardsOnTop,Row.TOP));
+			this.board.put(Row.MIDDLE, new Hand(cardsInMiddle,Row.MIDDLE));
+		}
+		// n = 9 : 1 top, 2 bottom
+		else if (this.getTopSize() < 3 && this.getBottomSize() < 5 && n == 9) {
+			ArrayList<Card> cardsOnTop = this.board.get(Row.TOP).getCards();
+			cardsOnTop.add(cards.get(0));
+			ArrayList<Card> cardsOnBottom = this.board.get(Row.BOTTOM).getCards();
+			cardsOnBottom.add(cards.get(1));
+			this.board.put(Row.TOP, new Hand(cardsOnTop,Row.TOP));
+			this.board.put(Row.BOTTOM, new Hand(cardsOnBottom,Row.BOTTOM));
+		}
+		// n = 10 : 2 top, 1 bottom
+		else if (this.getTopSize() < 3 && this.getBottomSize() < 5 && n == 10) {
+			ArrayList<Card> cardsOnTop = this.board.get(Row.TOP).getCards();
+			cardsOnTop.add(cards.get(1));
+			ArrayList<Card> cardsOnBottom = this.board.get(Row.BOTTOM).getCards();
+			cardsOnBottom.add(cards.get(0));
+			this.board.put(Row.TOP, new Hand(cardsOnTop,Row.TOP));
+			this.board.put(Row.BOTTOM, new Hand(cardsOnBottom,Row.BOTTOM));
+		}
+		// n = 11 : 1 top, 3 bottom
+		else if (this.getTopSize() < 3 && this.getBottomSize() < 5 && n == 11) {
+			ArrayList<Card> cardsOnTop = this.board.get(Row.TOP).getCards();
+			cardsOnTop.add(cards.get(0));
+			ArrayList<Card> cardsOnBottom = this.board.get(Row.BOTTOM).getCards();
+			cardsOnBottom.add(cards.get(2));
+			this.board.put(Row.TOP, new Hand(cardsOnTop,Row.TOP));
+			this.board.put(Row.BOTTOM, new Hand(cardsOnBottom,Row.BOTTOM));
+		}
+		// n = 12 : 3 top, 1 bottom
+		else if (this.getTopSize() < 3 && this.getBottomSize() < 5 && n == 12) {
+			ArrayList<Card> cardsOnTop = this.board.get(Row.TOP).getCards();
+			cardsOnTop.add(cards.get(2));
+			ArrayList<Card> cardsOnBottom = this.board.get(Row.BOTTOM).getCards();
+			cardsOnBottom.add(cards.get(0));
+			this.board.put(Row.TOP, new Hand(cardsOnTop,Row.TOP));
+			this.board.put(Row.BOTTOM, new Hand(cardsOnBottom,Row.BOTTOM));
+		}
+		// n = 13 : 2 top, 3 bottom
+		else if (this.getTopSize() < 3 && this.getBottomSize() < 5 && n == 13) {
+			ArrayList<Card> cardsOnTop = this.board.get(Row.TOP).getCards();
+			cardsOnTop.add(cards.get(1));
+			ArrayList<Card> cardsOnBottom = this.board.get(Row.BOTTOM).getCards();
+			cardsOnBottom.add(cards.get(2));
+			this.board.put(Row.TOP, new Hand(cardsOnTop,Row.TOP));
+			this.board.put(Row.BOTTOM, new Hand(cardsOnBottom,Row.BOTTOM));
+		}
+		// n = 14 : 3 top, 2 bottom
+		else if (this.getTopSize() < 3 && this.getBottomSize() < 5 && n == 14) {
+			ArrayList<Card> cardsOnTop = this.board.get(Row.TOP).getCards();
+			cardsOnTop.add(cards.get(2));
+			ArrayList<Card> cardsOnBottom = this.board.get(Row.BOTTOM).getCards();
+			cardsOnBottom.add(cards.get(1));
+			this.board.put(Row.TOP, new Hand(cardsOnTop,Row.TOP));
+			this.board.put(Row.BOTTOM, new Hand(cardsOnBottom,Row.BOTTOM));
+		}
+		// n = 15 : 1,2 middle
+		else if (this.getMiddleSize() < 4 && n == 15) {
+			ArrayList<Card> cardsInMiddle = this.board.get(Row.MIDDLE).getCards();
+			cardsInMiddle.add(cards.get(0));
+			cardsInMiddle.add(cards.get(1));
+			this.board.put(Row.MIDDLE, new Hand(cardsInMiddle,Row.MIDDLE));
+		}
+		// n = 16 : 1,3 middle
+		else if (this.getMiddleSize() < 4 && n == 16) {
+			ArrayList<Card> cardsInMiddle = this.board.get(Row.MIDDLE).getCards();
+			cardsInMiddle.add(cards.get(0));
+			cardsInMiddle.add(cards.get(2));
+			this.board.put(Row.MIDDLE, new Hand(cardsInMiddle,Row.MIDDLE));
+		}
+		// n = 17 : 2,3 middle
+		else if (this.getMiddleSize() < 4 && n == 17) {
+			ArrayList<Card> cardsInMiddle = this.board.get(Row.MIDDLE).getCards();
+			cardsInMiddle.add(cards.get(1));
+			cardsInMiddle.add(cards.get(2));
+			this.board.put(Row.MIDDLE, new Hand(cardsInMiddle,Row.MIDDLE));
+		}
+		// n = 18 : 1 middle, 2 bottom
+		else if (this.getMiddleSize() < 5 && this.getBottomSize() < 5 && n == 18) {
+			ArrayList<Card> cardsInMiddle = this.board.get(Row.MIDDLE).getCards();
+			cardsInMiddle.add(cards.get(0));
+			ArrayList<Card> cardsOnBottom = this.board.get(Row.BOTTOM).getCards();
+			cardsOnBottom.add(cards.get(1));
+			this.board.put(Row.MIDDLE, new Hand(cardsInMiddle,Row.MIDDLE));
+			this.board.put(Row.BOTTOM, new Hand(cardsOnBottom,Row.BOTTOM));
+		}
+		// n = 19 : 2 middle, 1 bottom
+		else if (this.getMiddleSize() < 5 && this.getBottomSize() < 5 && n == 19) {
+			ArrayList<Card> cardsInMiddle = this.board.get(Row.MIDDLE).getCards();
+			cardsInMiddle.add(cards.get(1));
+			ArrayList<Card> cardsOnBottom = this.board.get(Row.BOTTOM).getCards();
+			cardsOnBottom.add(cards.get(0));
+			this.board.put(Row.MIDDLE, new Hand(cardsInMiddle,Row.MIDDLE));
+			this.board.put(Row.BOTTOM, new Hand(cardsOnBottom,Row.BOTTOM));
+		}
+		// n = 20 : 1 middle, 3 bottom
+		else if (this.getMiddleSize() < 5 && this.getBottomSize() < 5 && n == 20) {
+			ArrayList<Card> cardsInMiddle = this.board.get(Row.MIDDLE).getCards();
+			cardsInMiddle.add(cards.get(0));
+			ArrayList<Card> cardsOnBottom = this.board.get(Row.BOTTOM).getCards();
+			cardsOnBottom.add(cards.get(2));
+			this.board.put(Row.MIDDLE, new Hand(cardsInMiddle,Row.MIDDLE));
+			this.board.put(Row.BOTTOM, new Hand(cardsOnBottom,Row.BOTTOM));
+		}
+		// n = 21 : 3 middle, 1 bottom
+		else if (this.getMiddleSize() < 5 && this.getBottomSize() < 5 && n == 21) {
+			ArrayList<Card> cardsInMiddle = this.board.get(Row.MIDDLE).getCards();
+			cardsInMiddle.add(cards.get(2));
+			ArrayList<Card> cardsOnBottom = this.board.get(Row.BOTTOM).getCards();
+			cardsOnBottom.add(cards.get(0));
+			this.board.put(Row.MIDDLE, new Hand(cardsInMiddle,Row.MIDDLE));
+			this.board.put(Row.BOTTOM, new Hand(cardsOnBottom,Row.BOTTOM));
+		}
+		// n = 22 : 2 middle, 3 bottom
+		else if (this.getMiddleSize() < 5 && this.getBottomSize() < 5 && n == 22) {
+			ArrayList<Card> cardsInMiddle = this.board.get(Row.MIDDLE).getCards();
+			cardsInMiddle.add(cards.get(1));
+			ArrayList<Card> cardsOnBottom = this.board.get(Row.BOTTOM).getCards();
+			cardsOnBottom.add(cards.get(2));
+			this.board.put(Row.MIDDLE, new Hand(cardsInMiddle,Row.MIDDLE));
+			this.board.put(Row.BOTTOM, new Hand(cardsOnBottom,Row.BOTTOM));
+		}
+		// n = 23 : 3 middle, 2 bottom
+		else if (this.getMiddleSize() < 5 && this.getBottomSize() < 5 && n == 23) {
+			ArrayList<Card> cardsInMiddle = this.board.get(Row.MIDDLE).getCards();
+			cardsInMiddle.add(cards.get(2));
+			ArrayList<Card> cardsOnBottom = this.board.get(Row.BOTTOM).getCards();
+			cardsOnBottom.add(cards.get(1));
+			this.board.put(Row.MIDDLE, new Hand(cardsInMiddle,Row.MIDDLE));
+			this.board.put(Row.BOTTOM, new Hand(cardsOnBottom,Row.BOTTOM));
+		}
+		// n = 24 : 1,2 bottom
+		else if (this.getBottomSize() < 4 && n == 24) {
+			ArrayList<Card> cardsOnBoard = this.board.get(Row.BOTTOM).getCards();
+			cardsOnBoard.add(cards.get(0));
+			cardsOnBoard.add(cards.get(1));
+			this.board.put(Row.BOTTOM, new Hand(cardsOnBoard,Row.BOTTOM));
+		}
+		// n = 25 : 1,3 bottom
+		else if (this.getBottomSize() < 4 && n == 25) {
+			ArrayList<Card> cardsOnBoard = this.board.get(Row.BOTTOM).getCards();
+			cardsOnBoard.add(cards.get(0));
+			cardsOnBoard.add(cards.get(2));
+			this.board.put(Row.BOTTOM, new Hand(cardsOnBoard,Row.BOTTOM));
+		}
+		// n = 26 : 2,3 bottom
+		else if (this.getBottomSize() < 4 && n == 26) {
+			ArrayList<Card> cardsOnBoard = this.board.get(Row.BOTTOM).getCards();
+			cardsOnBoard.add(cards.get(1));
+			cardsOnBoard.add(cards.get(2));
+			this.board.put(Row.BOTTOM, new Hand(cardsOnBoard,Row.BOTTOM));
+		}
+		// if arrangement was not possible try a new number
+		else {
+			this.placeCardsOnBoard(cards, new Random().nextInt(27));
+		}
+	} 
+	
+	/**
 	 * runs the simulation on a board, runs is the number of simulations to be done
 	 */
 	private static double simulate(Board board, Board oppBoard, Deck deck, int runs, int counter) {
@@ -222,6 +484,11 @@ public class Board {
 		if (counter == 0) {
 			return board.getExpectedPoints()/(double)runs;
 		}
+		// make copies of the boards
+		Board copy = new Board();
+		copy = board;
+		Board oppCopy = new Board();
+		oppCopy = oppBoard;
 		// remove the cards already on the board from the deck
 		ArrayList<Card> cardsToRemove = new ArrayList<Card>();
 		ArrayList<Card> deckOfCards = deck.getDeck();
@@ -230,12 +497,29 @@ public class Board {
 		for (int i=0; i<cardsToRemove.size(); i++) {
 			deckOfCards.remove(cardsToRemove.get(i));
 		}
-		// remove 3 cards for each player and add them to the board, for the number of times
-		// for the current state
-		
+		Deck newDeck = new Deck(deckOfCards);
+		// remove 3 cards for each player and add them to the board randomly, 
+		// 4 times for a complete board 
+		Random random = new Random();
+		int n = random.nextInt(27);
+		board.placeCardsOnBoard(newDeck.removeTopCards(3), n);
+		oppBoard.placeCardsOnBoard(newDeck.removeTopCards(3),n);
+		n = random.nextInt(27);
+		board.placeCardsOnBoard(newDeck.removeTopCards(3), n);
+		oppBoard.placeCardsOnBoard(newDeck.removeTopCards(3),n);
+		n = random.nextInt(27);
+		board.placeCardsOnBoard(newDeck.removeTopCards(3), n);
+		oppBoard.placeCardsOnBoard(newDeck.removeTopCards(3),n);
+		n = random.nextInt(27);
+		board.placeCardsOnBoard(newDeck.removeTopCards(3), n);
+		oppBoard.placeCardsOnBoard(newDeck.removeTopCards(3),n);
 		// calculate the points this board generated, add it to the total
+		//TODO
+		int points = 0;
+		copy.setExpectedPoints(points + copy.getExpectedPoints());
 		// decrement counter
-		return 0;
+		counter --;
+		return simulate(copy,oppCopy,new Deck(),runs,counter);
 	}
 	
 	/**

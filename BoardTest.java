@@ -23,11 +23,11 @@ public class BoardTest {
 		// test permutations
 		//ArrayList<Board> boardsList = Board.permutations(cards,1,4,0,new ArrayList<Board>(),5);
 		//System.out.println(boardsList);
-		Stack<Board> boards = Board.allArrangements(cards);
-		System.out.println(boards.size());
-		while (!boards.isEmpty()) {
-			System.out.println(boards.pop().toString());
-		}
+		//Stack<Board> boards = Board.allArrangements(cards);
+		//System.out.println(boards.size());
+		//while (!boards.isEmpty()) {
+			//System.out.println(boards.pop().toString());
+		//}
 	}
 
 }

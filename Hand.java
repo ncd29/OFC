@@ -41,12 +41,14 @@ public class Hand {
 		ArrayList<Card> cards = this.cards;
 		for (int j = 1; j < cards.size(); j++) {
 			int key = cards.get(j).getValue().getValue();
+			Suit s = cards.get(j).getSuit();
 			int i = j-1;
 			while (i>=0 && cards.get(i).getValue().getValue() > key) {
 				cards.get(i+1).setValue(cards.get(i).getValue());
 				cards.get(i+1).setSuit(cards.get(i).getSuit());
 				i = i - 1;
-				cards.get(i+1).setValue(Value.setValue(key));			
+				cards.get(i+1).setValue(Value.setValue(key));	
+				cards.get(i+1).setSuit(s);
 			}
 		}
 		return cards;
@@ -176,43 +178,121 @@ public class Hand {
 	}
 	
 	/**
-	 * check if a card list contains a royal flush
+	 * returns the most common suit if there is only one
+	 * return not specified if there is a tie for most common suit
 	 */
-	private boolean royalFlushCheck() {
-		//TODO
-		return false;
+	private Suit onlyOneSuit() {
+		HashMap<Suit,Integer> mostCommon = this.mostCommonSuit();
+		Object[] mostCommonArray = mostCommon.keySet().toArray();
+		return (Suit) mostCommonArray[0];
+	}
+	
+	/**
+	 * check if a card list contains a royal flush
+	 * assumes length is 5
+	 * tested
+	 */
+	public boolean royalFlushCheck() {
+		ArrayList<Card> cards = this.cards;
+		if (cards.size() < 5) {
+			return false;
+		}
+		else {
+			Suit mostCommonSuit = this.onlyOneSuit();
+			this.sortByRank();
+			if (cards.get(0).getValue() == Value.Ten && cards.get(0).getSuit() == mostCommonSuit
+			 && cards.get(1).getValue() == Value.Jack && cards.get(1).getSuit() == mostCommonSuit
+			 &&	cards.get(2).getValue() == Value.Queen && cards.get(2).getSuit() == mostCommonSuit
+			 && cards.get(3).getValue() == Value.King && cards.get(3).getSuit() == mostCommonSuit
+			 && cards.get(4).getValue() == Value.Ace && cards.get(4).getSuit() == mostCommonSuit)
+			{
+				return true;
+			}
+			else {
+				return false;
+			}
+		}
 	}
 	
 	/**
 	 * check if a card list contains a straight flush
+	 * assumes length is 5
 	 */
 	private boolean straightFlushCheck() {
-		//TODO
-		return false;
+		ArrayList<Card> cards = this.cards;
+		if (cards.size() < 5) {
+			return false;
+		}
+		else {
+			Suit mostCommonSuit = this.onlyOneSuit();
+			this.sortByRank();
+			for (int i=0; i<cards.size()-1; i++) {
+				if (!(cards.get(i).oneAbove(cards.get(i+1)) 
+					&& cards.get(i).getSuit() == mostCommonSuit
+					&& cards.get(i+1).getSuit() == mostCommonSuit)) {
+						return false;
+				}
+			}
+			return true;
+		}
 	}
 	
 	/**
 	 * check if a card list contains a four of a kind
+	 * assume input has 5 cards
 	 */
 	private boolean quadsCheck() {
-		//TODO
-		return false;
+		ArrayList<Card> cards = this.cards;
+		if (cards.size() < 5) {
+			return false;
+		}
+		this.sortByRank();
+		int counter = 0;
+		for (int i=0; i<cards.size()-1; i++) {
+			if (cards.get(i+1).getValue() == cards.get(i).getValue()) {
+				counter ++;
+			}
+		}
+		return counter == 3 && cards.get(1) == cards.get(3);
 	}
 	
 	/**
 	 * check if a card list contains a full house
+	 * assume input has 5 cards and assume quads have already been checked
 	 */
 	private boolean fullHouseCheck() {
-		//TODO
-		return false;
+		ArrayList<Card> cards = this.cards;
+		if (cards.size() < 5) {
+			return false;
+		}
+		this.sortByRank();
+		int counter = 0;
+		for (int i=0; i<cards.size()-1; i++) {
+			if (cards.get(i+1).getValue() == cards.get(i).getValue()) {
+				counter ++;
+			}
+		}
+		return counter == 3;
 	}
 	
 	/**
 	 * check if a card list contains a flush
+	 * assumes input is 5 cards
 	 */
 	private boolean flushCheck() {
-		//TODO
-		return false;
+		ArrayList<Card> cards = this.cards;
+		if (cards.size() < 5) {
+			return false;
+		}
+		else {
+			Suit mostCommonSuit = this.onlyOneSuit();
+			for (int i=0; i<cards.size()-1; i++) {
+				if (cards.get(i).getSuit() != mostCommonSuit) {
+					return false;
+				}
+			}
+			return true;
+		}
 	}
 	
 	/**
@@ -241,6 +321,7 @@ public class Hand {
 	
 	/**
 	 * check if a card list contains a straight
+	 * assumes input is 5 cards
 	 */
 	public boolean straightCheck() {
 		ArrayList<Card> cards = this.removeDups();
@@ -351,10 +432,29 @@ public class Hand {
 	
 	/**
 	 * check if a card list contains a three of a kind
+	 * assume input is 5 or 3 cards
 	 */
 	private boolean tripleCheck() {
-		//TODO
-		return false;
+		ArrayList<Card> cards = this.cards;
+		this.sortByRank();
+		int counter1 = 0;
+		int counter2 = 0;
+		Value valueOfTriple = this.valueOfTriple();
+		if (cards.size() == 3) {
+			for (int i=0; i<cards.size(); i++) {
+				if (cards.get(i).getValue() == valueOfTriple) {
+					counter1 ++;
+				}
+			}
+		}
+		else {
+			for (int i=0; i<cards.size(); i++) {
+				if (cards.get(i).getValue() == valueOfTriple) {
+					counter2 ++;
+				}
+			}
+		}
+		return counter1 == 3 || counter2 == 3;
 	}
 	
 	/**
@@ -384,10 +484,29 @@ public class Hand {
 	/**
 	 * helper function that determines the rank of three of a kind in the hand
 	 * if the hand does not contain three of a kind, returns null
+	 * assume the input is 3 or 5 cards
+	 * and quads has already been checked
 	 */
 	private Value valueOfTriple(){
-		//TODO
-		return null;
+		ArrayList<Card> cards = this.cards;
+		this.sortByRank();
+		int counter1 = 0;
+		if (cards.size() == 3) {
+			for (int i=0; i<cards.size()-1; i++) {
+				if (cards.get(i+1).getValue() == cards.get(i).getValue()) {
+					counter1 ++;
+				}
+			}
+		}
+		else {
+			for (int i=0; i<cards.size()-1; i++) {
+				if (cards.get(i+1).getValue() == cards.get(i).getValue()
+				&& cards.get(i+2).getValue() == cards.get(i+1).getValue()) {
+					return cards.get(i).getValue();
+				}
+			}
+		}
+		return (counter1 == 2 ? cards.get(0).getValue() : null);
 	}
 	
 	/**
