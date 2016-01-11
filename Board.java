@@ -151,7 +151,7 @@ public class Board {
 		rows.put(Row.BOTTOM, new Hand(backCards,Row.BOTTOM));
 		Board board = new Board(rows,0);
 		boolean contained = false;
-		System.out.println(current.size());
+		//System.out.println(current.size());
 		for (int i=0; i<current.size(); i++) {
 			if (board.equals(current.get(i))) {
 				contained = true;
@@ -186,7 +186,7 @@ public class Board {
 		int middle;
 		int back;
 		ArrayList<Board> boardList = new ArrayList<Board>();
-		System.out.println("length = " + length);
+		//System.out.println("length = " + length);
 		if (length == 5) {
 			// 1 permutation
 			front = 0; middle = 0; back = 5;
@@ -232,7 +232,7 @@ public class Board {
 		}
 		else { // length = 3
 			//TODO
-			System.out.println("wrong");
+			//System.out.println("wrong");
 			return new Stack<Board>();
 		}
 		for (int i=0; i<boardList.size(); i++) {
@@ -472,10 +472,50 @@ public class Board {
 		}
 		// if arrangement was not possible try a new number
 		else {
-			this.placeCardsOnBoard(cards, new Random().nextInt(27));
+			int n2 = new Random().nextInt(27);
+			System.out.println(n2);
+			this.placeCardsOnBoard(cards,n2);
 		}
 	} 
 	
+	/**
+	 * returns the amount of points a completed board is worth
+	 */
+	private double calculatePoints() {
+		HashMap<Row,Hand> rows = this.board;
+		Hand top = rows.get(Row.TOP);
+		Hand middle = rows.get(Row.MIDDLE);
+		Hand bottom = rows.get(Row.BOTTOM);
+		double topRank = top.determineBestHandThree();
+		double topPoints = topRank;
+		double middleRank = middle.determineBestHandFive();
+		double middlePoints = 0;
+		double bottomRank = bottom.determineBestHandFive();
+		double bottomPoints = 0;
+		if (topRank > middleRank
+			|| topRank > bottomRank
+			|| middleRank > bottomRank) {
+				return 0;
+		}
+		else {
+			if (middleRank < 12) { middlePoints = 0; }
+			if (middleRank >= 12 && middleRank < 25) { middlePoints = 2; }
+			if (middleRank == 25) { middlePoints = 4; }
+			if (middleRank == 26) { middlePoints = 8; }
+			if (middleRank == 27) { middlePoints = 12; }
+			if (middleRank == 28) { middlePoints = 20; }
+			if (middleRank == 29) { middlePoints = 30; }
+			if (middleRank == 30) { middlePoints = 50; }
+			if (bottomRank < 25) { bottomPoints = 0; }
+			if (bottomRank == 25) { bottomPoints = 2; }
+			if (bottomRank == 26) { bottomPoints = 4; }
+			if (bottomRank == 27) { bottomPoints = 6; }
+			if (bottomRank == 28) { bottomPoints = 10; }
+			if (bottomRank == 29) { bottomPoints = 15; }
+			if (bottomRank == 30) { bottomPoints = 25; }
+		}
+		return topPoints + middlePoints + bottomPoints;
+	}
 	/**
 	 * runs the simulation on a board, runs is the number of simulations to be done
 	 */
@@ -514,9 +554,8 @@ public class Board {
 		board.placeCardsOnBoard(newDeck.removeTopCards(3), n);
 		oppBoard.placeCardsOnBoard(newDeck.removeTopCards(3),n);
 		// calculate the points this board generated, add it to the total
-		//TODO
-		int points = 0;
-		copy.setExpectedPoints(points + copy.getExpectedPoints());
+		double points = board.calculatePoints();
+		copy.setExpectedPoints(points + board.getExpectedPoints());
 		// decrement counter
 		counter --;
 		return simulate(copy,oppCopy,new Deck(),runs,counter);

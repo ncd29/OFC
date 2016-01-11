@@ -329,11 +329,10 @@ public class Hand {
 			return false;
 		}
 		boolean result = false;
-		for (int i=cards.size()-1; i >=4; i++) {
-			if (cards.get(i).oneAbove(cards.get(i-1)) && cards.get(i-1).oneAbove(cards.get(i-2))
-				&& cards.get(i-2).oneAbove(cards.get(i-3)) && cards.get(i-3).oneAbove(cards.get(i-4))) {
-				result = true;
-			}
+		System.out.println(cards.size() + "cards size");
+		if (cards.get(4).oneAbove(cards.get(3)) && cards.get(3).oneAbove(cards.get(2))
+			&& cards.get(2).oneAbove(cards.get(1)) && cards.get(1).oneAbove(cards.get(0))) {
+			result = true;
 		}
 		return result || this.lowStraightCheck();
 	}
@@ -459,22 +458,47 @@ public class Hand {
 	
 	/**
 	 * check if a card list contains two pair
+	 * assumes that input is 5 cards and that
+	 * triple  and everything else higher has already been checked
 	 */
 	private boolean twoPairCheck() {
-		//TODO
-		return false;
+		ArrayList<Card> cards = this.cards;
+		this.sortByRank();
+		int counter = 0;
+		if (cards.size() < 5) {
+			return false;
+		}
+		else {
+			for (int i=0; i<cards.size()-1; i++) {
+				if (cards.get(i+1).getValue() == cards.get(i).getValue()) {
+					counter ++;
+				}
+			}
+		}
+		return counter == 2;
 	}
 	
 	/**
 	 * check if a card list contains a pair
+	 * assumes that input has 3 or 5 cards
+	 * and everything else has been checked
 	 */
 	private boolean pairCheck() {
-		//TODO
-		return false;
+		ArrayList<Card> cards = this.cards;
+		this.sortByRank();
+		int counter = 0;
+		Value valueOfPair = this.valueOfPair();
+		for (int i=0; i<cards.size()-1; i++) {
+			if (cards.get(i).getValue() == valueOfPair) {
+				counter ++;
+			}
+		}
+		return counter > 1;
 	}
 	
 	/**
 	 * helper function that compares hands whose best hand's are both high cards
+	 * and returns the better hand
 	 */
 	private Hand compareHighCard(Hand h){
 		//TODO
@@ -511,10 +535,17 @@ public class Hand {
 	
 	/**
 	 * helper function that determines the rank of pair in the hand
-	 * if the hand does not contain three of a kind, returns null
+	 * if the hand does not contain a pair, return null
+	 * assumes that two pair and triple have not been checked
 	 */
 	private Value valueOfPair(){
-		//TODO
+		ArrayList<Card> cards = this.cards;
+		this.sortByRank();
+		for (int i=0; i<cards.size()-1; i++) {
+			if (cards.get(i+1).getValue() == cards.get(i).getValue()) {
+				return cards.get(i).getValue();
+			}
+		}
 		return null;
 	}
 	
@@ -587,9 +618,105 @@ public class Hand {
 	 * this will be called to determine a winner, but also to determine the best
 	 * placement for cards as they are dealt
 	 */
-	public Hand determineBestHand(){
-		//TODO
-		return null;
+	public double determineBestHandThree(){
+			Value v = this.valueOfTriple();
+			Value v2 = this.valueOfPair();
+			if (v != null) {
+				if (v == Value.Two) { return Probability.TRIP_TWOS_IN_FRONT; }
+				else if (v == Value.Three) { return Probability.TRIP_THREES_IN_FRONT; }
+				else if (v == Value.Four) { return Probability.TRIP_FOURS_IN_FRONT; }
+				else if (v == Value.Five) {return Probability.TRIP_FIVES_IN_FRONT; }
+				else if (v == Value.Six) {return Probability.TRIP_SIXES_IN_FRONT; }
+				else if (v == Value.Seven) { return Probability.TRIP_SEVENS_IN_FRONT; }
+				else if (v == Value.Eight) { return Probability.TRIP_EIGHTS_IN_FRONT; }
+				else if (v == Value.Nine) { return Probability.TRIP_NINES_IN_FRONT; }
+				else if (v == Value.Ten) { return Probability.TRIP_TENS_IN_FRONT; }
+				else if (v == Value.Jack) { return Probability.TRIP_TWOS_IN_FRONT; }
+				else if (v == Value.Queen) { return Probability.TRIP_TWOS_IN_FRONT; }
+				else if (v == Value.King) { return Probability.TRIP_TWOS_IN_FRONT; }
+				else { //v == Value.Ace 
+					return Probability.TRIP_ACES_IN_FRONT;
+				}
+			}
+			else if (v2 != null) {
+				if (v2.getValue() < 2) { return 0; }
+				else if (v2.getValue() == 2) { return Probability.SIXES_IN_FRONT; }
+				else if (v2.getValue() == 3) { return Probability.SEVENS_IN_FRONT; }
+				else if (v2.getValue() == 4) { return Probability.EIGHTS_IN_FRONT; }
+				else if (v2.getValue() == 5) { return Probability.NINES_IN_FRONT; }
+				else if (v2.getValue() == 6) { return Probability.TENS_IN_FRONT; }
+				else if (v2.getValue() == 7) { return Probability.JACKS_IN_FRONT; }
+				else if (v2.getValue() == 8) { return Probability.QUEENS_IN_FRONT; }
+				else if (v2.getValue() == 9) { return Probability.KINGS_IN_FRONT; }
+				else { // valye == 10
+					return Probability.ACES_IN_FRONT;
+				}
+			}
+			else {
+				return 0;
+			}
+	}
+	
+	/**
+	 * determine best hand for five cards
+	 */
+	public double determineBestHandFive() {
+		if (this.royalFlushCheck()) {
+			return HandRank.RoyalFlush.getValue();
+		}
+		else if (this.straightFlushCheck()) {
+			return HandRank.StraightFlush.getValue();
+		}
+		else if (this.quadsCheck()) {
+			return HandRank.Quads.getValue();
+		}
+		else if (this.fullHouseCheck()) {
+			return HandRank.FullHouse.getValue();
+		}
+		else if (this.flushCheck()) {
+			return HandRank.Flush.getValue();
+		}
+		else if (this.straightCheck()) {
+			return HandRank.Straight.getValue();
+		}
+		else if (this.tripleCheck()) {
+			Value v = this.valueOfTriple();
+			if (v == Value.Two) { return HandRank.TripleOfTwos.getValue() + 6.5; }
+			else if (v == Value.Three) { return HandRank.TripleOfThrees.getValue() + 6.5; }
+			else if (v == Value.Four) { return HandRank.TripleOfFours.getValue() + 6.5 ; }
+			else if (v == Value.Five) { return HandRank.TripleOfFives.getValue() + 6.5; }
+			else if (v == Value.Six) { return HandRank.TripleOfSixes.getValue() + 6.5; }
+			else if (v == Value.Seven) { return HandRank.TripleOfSevens.getValue() + 6.5; }
+			else if (v == Value.Eight) { return HandRank.TripleOfEights.getValue() + 6.5; }
+			else if (v == Value.Nine) { return HandRank.TripleOfNines.getValue() + 6.5; }
+			else if (v == Value.Ten) { return HandRank.TripleOfTens.getValue() + 6.5; }
+			else if (v == Value.Jack) { return HandRank.TripleOfJacks.getValue() + 6.5; }
+			else if (v == Value.Queen) { return HandRank.TripleOfQueens.getValue() + 6.5; }
+			else if (v == Value.King) { return HandRank.TripleOfKings.getValue() + 6.5; }
+			else { return HandRank.TripleOfAces.getValue() + 6.5; }
+		}
+		else if (this.twoPairCheck()) {
+			return HandRank.TwoPair.getValue() + 6; // 11 + 6 = 17, between AA and 222
+		}
+		else if (this.pairCheck()) {
+			Value v = this.valueOfPair();
+			if (v == Value.Two) { return HandRank.Pair.getValue(); }
+			else if (v == Value.Three) { return HandRank.Pair.getValue(); }
+			else if (v == Value.Four) { return HandRank.Pair.getValue(); }
+			else if (v == Value.Five) { return HandRank.Pair.getValue(); }
+			else if (v == Value.Six) { return HandRank.PairOfSixes.getValue() - 1; }
+			else if (v == Value.Seven) { return HandRank.PairOfSevens.getValue() - 1; }
+			else if (v == Value.Eight) { return HandRank.PairOfEights.getValue() - 1; }
+			else if (v == Value.Nine) { return HandRank.PairOfNines.getValue() - 1; }
+			else if (v == Value.Ten) { return HandRank.PairOfTens.getValue() - 1; }
+			else if (v == Value.Jack) { return HandRank.PairOfJacks.getValue() - 1; }
+			else if (v == Value.Queen) { return HandRank.PairOfQueens.getValue() + 6.5; }
+			else if (v == Value.King) { return HandRank.PairOfKings.getValue() + 6.5; }
+			else { return HandRank.TripleOfAces.getValue() + 6.5; }
+		}
+		else {
+			return HandRank.HighCard.getValue();
+		}
 	}
 	
 	/**

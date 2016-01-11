@@ -14,33 +14,39 @@ public class Probability {
 	// NVM don't do this there are too many, better to calculate ad-hoc
 	
 	//create the Point constants
-	private static double FANTASYLAND = 7.5;
-	private static double FOUL = -6;
-	private static double STRAIGHT_IN_BACK = 2;
-	private static double FLUSH_IN_BACK = 4;
-	private static double FULL_HOUSE_IN_BACK = 6;
-	private static double QUADS_IN_BACK = 10;
-	private static double TRIPS_IN_MIDDlE = 2;
-	private static double STRAIGHT_IN_MIDDLE = 4;
-	private static double FLUSH_IN_MIDDLE = 8;
-	private static double FULL_HOUSE_IN_MIDDLE = 12;
-	private static double QUADS_IN_MIDDLE = 20;
-	private static double QUEENS_IN_FRONT = 7 + FANTASYLAND;
-	private static double KINGS_IN_FRONT = 8 + FANTASYLAND;
-	private static double ACES_IN_FRONT = 9 + FANTASYLAND;
-	private static double TRIP_TWOS_IN_FRONT = 10 + FANTASYLAND;
-	private static double TRIP_THREES_IN_FRONT = 11 + FANTASYLAND;
-	private static double TRIP_FOURS_IN_FRONT = 12 + FANTASYLAND;
-	private static double TRIP_FIVES_IN_FRONT = 13 + FANTASYLAND;
-	private static double TRIP_SIXES_IN_FRONT = 14 + FANTASYLAND;;
-	private static double TRIP_SEVENS_IN_FRONT = 15 + FANTASYLAND;
-	private static double TRIP_EIGHTS_IN_FRONT = 16 + FANTASYLAND;
-	private static double TRIP_NINES_IN_FRONT = 17 + FANTASYLAND;
-	private static double TRIP_TENS_IN_FRONT = 18 + FANTASYLAND;
-	private static double TRIP_JACKS_IN_FRONT = 19 + FANTASYLAND;
-	private static double TRIP_QUEENS_IN_FRONT = 20 + FANTASYLAND;
-	private static double TRIP_KINGS_IN_FRONT = 21 + FANTASYLAND;
-	private static double TRIP_ACES_IN_FRONT = 22 + FANTASYLAND;
+	public static double FANTASYLAND = 7.5;
+	public static double FOUL = -6;
+	public static double STRAIGHT_IN_BACK = 2;
+	public static double FLUSH_IN_BACK = 4;
+	public static double FULL_HOUSE_IN_BACK = 6;
+	public static double QUADS_IN_BACK = 10;
+	public static double TRIPS_IN_MIDDlE = 2;
+	public static double STRAIGHT_IN_MIDDLE = 4;
+	public static double FLUSH_IN_MIDDLE = 8;
+	public static double FULL_HOUSE_IN_MIDDLE = 12;
+	public static double QUADS_IN_MIDDLE = 20;
+	public static double SIXES_IN_FRONT = 1;
+	public static double SEVENS_IN_FRONT = 2;
+	public static double EIGHTS_IN_FRONT = 3;
+	public static double NINES_IN_FRONT = 4;
+	public static double TENS_IN_FRONT = 5;
+	public static double JACKS_IN_FRONT = 6;
+	public static double QUEENS_IN_FRONT = 7 + FANTASYLAND;
+	public static double KINGS_IN_FRONT = 8 + FANTASYLAND;
+	public static double ACES_IN_FRONT = 9 + FANTASYLAND;
+	public static double TRIP_TWOS_IN_FRONT = 10 + FANTASYLAND;
+	public static double TRIP_THREES_IN_FRONT = 11 + FANTASYLAND;
+	public static double TRIP_FOURS_IN_FRONT = 12 + FANTASYLAND;
+	public static double TRIP_FIVES_IN_FRONT = 13 + FANTASYLAND;
+	public static double TRIP_SIXES_IN_FRONT = 14 + FANTASYLAND;;
+	public static double TRIP_SEVENS_IN_FRONT = 15 + FANTASYLAND;
+	public static double TRIP_EIGHTS_IN_FRONT = 16 + FANTASYLAND;
+	public static double TRIP_NINES_IN_FRONT = 17 + FANTASYLAND;
+	public static double TRIP_TENS_IN_FRONT = 18 + FANTASYLAND;
+	public static double TRIP_JACKS_IN_FRONT = 19 + FANTASYLAND;
+	public static double TRIP_QUEENS_IN_FRONT = 20 + FANTASYLAND;
+	public static double TRIP_KINGS_IN_FRONT = 21 + FANTASYLAND;
+	public static double TRIP_ACES_IN_FRONT = 22 + FANTASYLAND;
 	
 	private Probability() {} // constructor not needed?
 	
@@ -82,6 +88,7 @@ public class Probability {
 	 * calculates the odds of completing a flush in the back row given the opponent's board
 	 * on the first or second round of betting
 	 * this should work when largest suit is anything, even just one, will test
+	 * not completely correct
 	 */
 	public static double flushInBack(HashMap<Suit,Integer> largestSuit, Board oppBoard) {
 		Suit suit = (Suit) largestSuit.keySet().toArray()[0];

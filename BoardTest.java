@@ -1,4 +1,5 @@
 import static org.junit.Assert.*;
+import java.util.HashMap;
 import java.util.ArrayList;
 import java.util.Stack;
 
@@ -11,8 +12,8 @@ public class BoardTest {
 	public void test() {
 		Card c1 = new Card(Suit.hearts,Value.Ace);
 		Card c2 = new Card(Suit.clubs,Value.Ace);
-		Card c3 = new Card(Suit.spades,Value.King);
-		Card c4 = new Card(Suit.spades,Value.Ten);
+		Card c3 = new Card(Suit.spades,Value.Ace);
+		Card c4 = new Card(Suit.spades,Value.Nine);
 		Card c5 = new Card(Suit.clubs,Value.Ten);
 		ArrayList<Card> cards = new ArrayList<Card>();
 		cards.add(c1);
@@ -20,8 +21,9 @@ public class BoardTest {
 		cards.add(c3);
 		cards.add(c4);
 		cards.add(c5);
-		// test permutations
-		//ArrayList<Board> boardsList = Board.permutations(cards,1,4,0,new ArrayList<Board>(),5);
+		Board board = new Board();
+		Board best = board.calculateBestAction(cards, new Board());
+		System.out.println(best.toString());
 		//System.out.println(boardsList);
 		//Stack<Board> boards = Board.allArrangements(cards);
 		//System.out.println(boards.size());
